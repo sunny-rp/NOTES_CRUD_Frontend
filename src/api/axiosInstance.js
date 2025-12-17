@@ -1,15 +1,30 @@
-import axios from "axios";
-
+import axios from "axios"
+import { store } from "../redux/store"
+import { signoutSuccess } from "../redux/user/userSlice"
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_PUBLIC_API_BASE_URL, // This will use your https://Jasmine-automate-business-solutions.onrender.com/api/v1/
+  baseURL: import.meta.env.VITE_PUBLIC_API_BASE_URL,
   withCredentials: true,
-  timeout: 100000, // 100 seconds timeout
+  timeout: 100000,
   headers: {
-    // "Content-Type": "application/json",
     Accept: "application/json",
   },
-});
+})
 
+// 🔥 RESPONSE INTERCEPTOR (AUTO LOGOUT ON TOKEN EXPIRE)
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
 
-export default API;
+    if (status === 401) {
+      store.dispatch(signoutSuccess());
+      window.location.href = "/login";
+      return; // stop further
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default API

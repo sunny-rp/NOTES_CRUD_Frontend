@@ -1,51 +1,48 @@
-import React, { useState } from "react"
-import PasswordInput from "../../components/Input/PasswordInput"
-import { Link, useNavigate } from "react-router-dom"
-import { validateEmail } from "../../utils/helper"
-import { toast } from "react-toastify"
-import { registerUser } from "../../api/authApi"
+import React, { useState } from "react";
+import PasswordInput from "../../components/Input/PasswordInput";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { registerUser } from "../../api/authApi";
 
 const Signup = () => {
-  const [fullname, setName] = useState("")
-  const [username, setUserName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
+  const [fullname, setName] = useState("");
+  const [username, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!fullname) return setError("Please enter your name")
-    if (!validateEmail(email)) return setError("Please enter a valid email address")
-    if (!password) return setError("Please enter the password")
+    if (!fullname?.trim()) return setError("Please enter your name");
+    if (!username?.trim()) return setError("Please enter username");
+    if (!email?.trim()) return setError("Please enter email");
+    if (!password?.trim()) return setError("Please enter the password");
 
-    setError("")
+    setError("");
 
     try {
-      const res = await registerUser({ fullname, username, email, password })
+      const res = await registerUser({ fullname, username, email, password });
 
-      // ✅ success case
-      if (res.data.success) {
-        toast.success(res.data.message || "User registered successfully")
-        navigate("/login")
-      } 
-      // ✅ failure case handled from backend message
-      else {
-        toast.error(res.data.message || "Registration failed")
-      }
+      if (res.data?.success) {
+        toast.success(res.data?.message || "OTP sent to your email");
 
-    } catch (err) {
-      // ✅ handle HTTP errors gracefully
-      if (err.response && err.response.data) {
-        toast.error(err.response.data.message || "Something went wrong")
+        navigate("/verify-otp", {
+          state: {
+            email,
+            otpId: res.data?.data?.otpId,
+          },
+        });
       } else {
-        toast.error(err.message || "Network error")
+        toast.error(res.data?.message || "Registration failed");
       }
-      console.error("Signup error:", err)
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || "Something went wrong");
+      console.error("Signup error:", err.response?.data || err);
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-center mt-28">
@@ -77,10 +74,7 @@ const Signup = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <PasswordInput
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
 
           {error && <p className="text-red-500 text-sm pb-1">{error}</p>}
 
@@ -97,7 +91,7 @@ const Signup = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Signup
+export default Signup;

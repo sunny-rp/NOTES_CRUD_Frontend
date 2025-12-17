@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import PasswordInput from "../../components/Input/PasswordInput";
 import { Link, useNavigate } from "react-router-dom";
-import { validateEmail } from "../../utils/helper";
 import { useDispatch } from "react-redux";
 import {
   signInFailure,
@@ -23,10 +22,7 @@ const Login = () => {
     e.preventDefault();
 
     // 🧠 Basic validation
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
+
 
     if (!password) {
       setError("Please enter the password");
